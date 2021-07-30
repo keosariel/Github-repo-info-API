@@ -39,7 +39,7 @@ def _get_repo_info(url):
 
     html = get(url)
 
-    soup = None if not html else BeautifulSoup(html, features="lxml")
+    soup = None if not html else BeautifulSoup(html)
 
     if soup:
         repo_path = soup.find("meta", attrs={"property" : "og:title"})
