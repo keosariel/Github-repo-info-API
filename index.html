@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>keosariel's github repo info</title>
+</head>
+<style type="text/css">
+	* {
+		outline: none;
+	}
+	div[for='container'] {
+		max-width: 700px;
+		margin: 0 auto;
+		padding: 10px;
+	}
+
+	#info_form { 
+		margin: 0 auto;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	button {
+		border: 1px dashed #000;
+		color: #fff;
+		background: #000;
+		padding: 10px;
+	}
+
+	input {
+		padding: 20px 10px;
+		border: 1px solid #000;
+		width: 100%;
+		font-size: 19px;
+	}
+
+	div[id="error"] {
+		font-family: monospace;
+		font-size: 17px;
+		border: 1px dashed red;
+		padding: 10px;
+		margin: 5px 0;
+	}
+
+	#info {
+		font-family: monospace;
+		font-size: 17px;
+		border: 1px dashed blue;
+		padding: 10px;
+		margin: 5px 0;
+	}
+
+	div[id="repo-info"] {
+		font-family: monospace;
+		font-size: 17px;
+		border: 1px dashed green;
+		padding: 10px;
+		margin: 5px 0;
+	}
+
+</style>
+<body>
+	<div for="container">
+		<form id="info_form" action="/get" method="get">
+			<input type="text" name="url" id="url" placeholder="Github repo link">
+			<button type="submit">Get</button>
+		</form>	
+		<p id="loading" style="display: none;">Getting info....</p>
+		<div id="repo-info" style="display: none;">
+
+			<span>Author: </span><span id="repo_author"></span>
+			<br>
+			<span>Path: </span><span id="repo_path"></span>
+			<br>
+			<span>Title: </span><span id="repo_title"></span>
+			<br>
+			<span>Url: </span><span id="repo_url"></span>
+			<br>
+			<span>Description: </span><span id="repo_description"></span>
+			<br>
+			<span>Tags: </span><span id="repo_tags"></span>
+			<br>
+			<span>Readme: </span><span id="repo_readme_"></span>
+			<br>
+		</div>	
+		<div id="info">
+			<p>Make sure to input valid github repo link!</p>
+		</div>
+		<div id="error" style="display: none;">
+			<p>An error occured!</p>
+			<span>Check if:</span>
+			<ol>
+				<li>
+					You are connected to the internet
+				</li>
+				<li>
+					You input a valid *Github Repo Link*
+				</li>
+			</ol>
+		</div>							
+	</div>
+	<script type="text/javascript">
+		function gebi(id){
+			return document.getElementById(id);
+		}
+
+		function get_value(id){
+			var elem = gebi(id);
+			if(elem){ return elem.value; }
+		}
+
+		function set_value(id, value){
+			var elem = gebi(id);
+			if(elem){ elem.value = value; }
+		}
+
+		gebi("info_form").addEventListener("submit", function(event){
+			event.preventDefault();
+			url = get_value('url');
+			gebi(`loading`).style.display = "block";
+			gebi(`repo-info`).style.display = "none";
+			fetch(`/repo?url=${url}`, {
+				method: "GET", 
+				headers: { 'Content-Type': 'application/json; charset=UTF-8'}
+			}).then(response =>  response.json())
+			.then(data => {
+				gebi(`loading`).style.display = "none";
+				if(data.has_error){
+					alert(data.description)
+				}else{
+					var info_div = gebi(`info`);
+					if(data.data == null){
+						gebi(`error`).style.display = "block";
+						gebi(`info`).style.display = "block";
+						gebi(`repo-info`).style.display = "none";
+					}else{
+						gebi(`error`).style.display = "none";
+						gebi(`info`).style.display = "none";
+						gebi(`repo-info`).style.display = "block";
+						
+						var fields =  ["repo_author", "repo_path","repo_title","repo_url","repo_description","repo_tags","repo_readme_"]
+						fields.forEach((e) => {
+							if(e != "repo_tags"){
+								gebi(e).innerHtml = "".concat(data.data[e])
+							}else{
+								gebi(e).innerHtml = data.data[e]
+							}
+						});
+
+					}
+				}
+			})
+			.catch(error => { 
+				console.log("ERROR: ",error)
+			})
+
+			return false;
+		});
+	</script>
+</body>
+</html>
