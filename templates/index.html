@@ -181,6 +181,7 @@
 			})
 			.catch(error => { 
 				console.log("ERROR: ",error);
+				gebi(`loading`).style.display = "none";
 				gebi(`error`).style.display = "block";
 				gebi(`info`).style.display = "block";
 				gebi(`repo-info`).style.display = "none";
